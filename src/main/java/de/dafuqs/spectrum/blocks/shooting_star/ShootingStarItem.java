@@ -38,29 +38,31 @@ public class ShootingStarItem extends BlockItem implements ShootingStar {
 	
 	@Override
 	public InteractionResult useOn(UseOnContext context) {
-		if (context.getPlayer().isShiftKeyDown()) {
+		Player user = context.getPlayer();
+		if (user != null && user.isShiftKeyDown()) {
 			// place as block
 			return super.useOn(context);
 		} else {
 			// place as entity
 			Level world = context.getLevel();
 			
-			if (!world.isClientSide()) {
-				ItemStack itemStack = context.getItemInHand();
-				Vec3 hitPos = context.getClickLocation();
-				Player user = context.getPlayer();
-				
-				ShootingStarEntity shootingStarEntity = getEntityForStack(context.getLevel(), hitPos, itemStack);
+			ItemStack itemStack = context.getItemInHand();
+			Vec3 hitPos = context.getClickLocation();
+			
+			ShootingStarEntity shootingStarEntity = getEntityForStack(context.getLevel(), hitPos, itemStack);
+			if (user != null) {
 				shootingStarEntity.setYRot(user.getYRot());
-				if (!world.noCollision(shootingStarEntity, shootingStarEntity.getBoundingBox())) {
-					return InteractionResult.FAIL;
-				} else {
-					world.addFreshEntity(shootingStarEntity);
-					world.gameEvent(user, GameEvent.ENTITY_PLACE, context.getClickedPos());
-					if (!user.getAbilities().instabuild) {
-						itemStack.shrink(1);
-					}
-					
+			}
+			
+			// check for collision on the clientside for parity with similar items such as boats
+			if (!world.noCollision(shootingStarEntity, shootingStarEntity.getBoundingBox())) {
+				return InteractionResult.FAIL;
+			} else if (!world.isClientSide()) {
+				world.addFreshEntity(shootingStarEntity);
+				world.gameEvent(user, GameEvent.ENTITY_PLACE, context.getClickedPos());
+				itemStack.consume(1, user);
+
+				if (user != null) {
 					user.awardStat(Stats.ITEM_USED.get(this));
 				}
 			}
