@@ -28,7 +28,7 @@ public class ShootingStarDispenserBehavior extends DefaultDispenseItemBehavior {
 		// pull from dimensions to make sure we're not inside the dispenser - (step value * (half a block + offset + half of relevant dimension))
 		shootingStarEntity.setPos(
 				shootingStarEntity.getX() + (direction.getStepX() * (0.5 + HORIZONTAL_DISPENSE_OFFSET + shootingStarEntity.getBbWidth() / 2)),
-				shootingStarEntity.getY() + (direction.getStepY() * (0.5 + VERTICAL_DISPENSE_OFFSET + shootingStarEntity.getBbHeight() / 2)),
+				shootingStarEntity.getY() + (direction.getStepY() * (0.5 + VERTICAL_DISPENSE_OFFSET + (direction == Direction.DOWN ? shootingStarEntity.getBbHeight() : 0))),
 				shootingStarEntity.getZ() + (direction.getStepZ() * (0.5 + HORIZONTAL_DISPENSE_OFFSET + shootingStarEntity.getBbWidth() / 2))
 		);
 		
